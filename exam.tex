@@ -97,6 +97,24 @@ This question is made up of several parts:
     
     \begin{answer}
     Clearly it is part (ii).
+
+% If you're using LuaTeX, you can calculate the answer to your questions conveniently in Lua
+\ifluatex
+    % A very simple vector class is provided as demonstrated in this piece of code.
+    \begin{luacode*}
+        mu = 1.327e11
+        au = 1.496e8
+        r = Vector:new( {1.3369, 0.66845, 0} )*au
+        v = Vector:new( {0, 25, 0} )
+        
+        h = r:cross(v)
+        e = v:cross(h)/mu - r/r:norm()
+    \end{luacode*}
+
+    Also, for $\mu=\directlua{tex.print(mu)}$ the eccentricity vector is:
+    $$\vec{e} = \frac{\vec{v}\times\vec{h}}{\mu}-\frac{\vec{r}}{r} = \directlua{e:print()}$$
+\fi
+% End of LuaTeX code
     \end{answer}
     }
 

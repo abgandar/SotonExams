@@ -65,11 +65,96 @@
 
 \LoadClass{\baseclass}
 
-\usepackage{version,lastpage,fancyhdr,fix-cm}
 \usepackage[aux]{rerunfilecheck}
+\usepackage{version,lastpage,fancyhdr,fix-cm,ifluatex}
 
-% Base font Helvetica (required)
-\usepackage[scaled]{helvet}
+\ifluatex
+    \usepackage{fontspec}
+    \setsansfont{TeX Gyre Heros} % Helvetica replacement, requires TeXLive fonts to be available in operating system
+    \usepackage{luacode}
+
+% a simple lua vector class to allow basic vector arithmetic
+    \begin{luacode*}
+Vector = {
+    new = function (self, a)
+        o = { d = a or {0, 0, 0} }
+        setmetatable( o, self )
+        self.__index = self
+        return o
+    end,
+    __unm = function (self)
+        d = {}
+        for i in pairs(self.d) do d[i] = -self.d[i] end
+        return Vector:new(d)
+    end,
+    __add = function (self, v)
+        d = {}
+        if type(self) == "number" then
+            for i in pairs(v.d) do d[i] = v.d[i] + self end
+        elseif type(v) == "number" then
+            for i in pairs(self.d) do d[i] = self.d[i] + v end
+        else
+            for i in pairs(self.d) do d[i] = self.d[i] + v.d[i] end
+        end
+        return Vector:new(d)
+    end,
+    __sub = function (self, v)
+        d = {}
+        if type(self) == "number" then
+            for i in pairs(v.d) do d[i] = self - v.d[i] end
+        elseif type(v) == "number" then
+            for i in pairs(self.d) do d[i] = self.d[i] - v end
+        else
+            for i in pairs(self.d) do d[i] = self.d[i] - v.d[i] end
+        end
+        return Vector:new(d)
+    end,
+    __mul = function (self, v)
+        d = {}
+        if type(self) == "number" then
+            for i in pairs(v.d) do d[i] = v.d[i]*self end
+        elseif type(v) == "number" then
+            for i in pairs(self.d) do d[i] = self.d[i]*v end
+        else
+            d = 0
+            for i in pairs(self.d) do d = d + self.d[i]*self.d[i] end
+            return d
+        end
+        return Vector:new(d)
+    end,
+    __div = function (self, v)
+        d = {}
+        for i in pairs(self.d) do d[i] = self.d[i]/v end
+        return Vector:new(d)
+    end,
+    cross = function (self, v)
+        d = {}
+        d[1] = self.d[2]*v.d[3]-self.d[3]*v.d[2]
+        d[2] = self.d[3]*v.d[1]-self.d[1]*v.d[3]
+        d[3] = self.d[1]*v.d[2]-self.d[2]*v.d[1]
+        return Vector:new(d)
+    end,
+    norm = function (self)
+        return math.sqrt(self*self)
+    end,
+    __tostring = function (self)
+        res = "\\begin{pmatrix}"
+        for i in pairs(self.d) do 
+            if i > 1 then res = res.."\\\\" end
+            res = res..string.format("\\num{%.4g}", self.d[i])
+        end
+        return res.."\\end{pmatrix}"
+    end,
+    print = function (self)
+        tex.sprint(self:__tostring())
+    end
+}
+    \end{luacode*}
+\else
+    \usepackage[scaled]{helvet}
+\fi
+
+% Set base font to Helvetica
 \renewcommand*\familydefault{\sfdefault}
 
 % set up various headers and footers
@@ -155,7 +240,7 @@
 % PDF package
 \usepackage[pdfpagemode={UseNone}, bookmarks=true, bookmarksopen=false,
    bookmarksopenlevel=0, bookmarksnumbered=true, hypertexnames=false,
-   pdfstartview={FitV}, pdfpagelayout={TwoColumnLeft}, hidelinks = true, unicode = true]{hyperref}
+   pdfstartview={FitV}, pdfpagelayout={TwoColumnLeft}, hidelinks, unicode = true]{hyperref}
 \pdfstringdefDisableCommands{
    \let\\\space
    \let\spacefactor\space
