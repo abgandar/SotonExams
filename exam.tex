@@ -5,6 +5,7 @@
 % Options that can be provided to the class, for example:
 %\documentclass[answers]{uosexam}
 %
+% draft - Add the word "Draft" in the background, show layout errors
 % supplementary - This is a supplementary exam (changes wording in front matter as per faculty guidance)
 % main - This is a "normal" exam (default)
 % answers - Include the answers in the output
@@ -70,10 +71,11 @@ This question is made up of several parts:
     \begin{table}[htp]
     \caption{Very important data!}
     \begin{center}
-    \begin{tabular}{c|c}
-    1 & 2 \\
+    \begin{tabular}{c|cc}
+       & A & B \\
     \hline 
-    4 & 3
+    a & \SI{1}{\m} & \SI{2.6e3}{\kg\km} \\
+    b & \num{34669} & \si{\N\m}
     \end{tabular}
     \end{center}
     \label{tab:info}
@@ -132,11 +134,11 @@ This is a really poorly written question. The marks don't even add up!
     \begin{figure}[htb]
     \begin{center}
     Your figure could appear here!
+    %\includegraphics[width=0.7\textwidth]{figs/myfigure.png}
     \caption{Placeholder for a pretty figure.}
     \label{fig:myfigure}
     \end{center}
     \end{figure}
-
 
     \begin{answer}
     10 marks.
@@ -159,12 +161,14 @@ Formula sheets must always be the last thing in the exam. Note how the footer on
 in accordance with faculty guidelines (END OF PAPER after last question, etc.)
 
 \begin{table}[htb]
-\caption{Some really cool data could be shown here}
+\caption{Some really cool data could be shown here so the students can enjoy the exam along with this long caption.}
 \begin{center}
 \begin{tabular}{|c|c|}
+\hline
 But & it \\
 \hline
-is & not
+is & not \\
+\hline
 \end{tabular}
 \end{center}
 \label{tab:mytable}

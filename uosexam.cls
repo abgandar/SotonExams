@@ -1,13 +1,7 @@
 %%
 %% This is file `uosexam.cls',
-%% generated with the docstrip utility.
 %%
-%% The original source files were:
-%%
-%% uosexam.dtx  (with options: `class')
-%%Font change 25 October 2007
-%%
-%% This file is part of the uosexam class distribution
+%% This file is based on the uosexam class distribution
 %%
 %% Modified by Alexander Wittig (2019):
 %%  - add class option for supplementary exams
@@ -19,6 +13,7 @@
 %%  - modify headers and footers to more closely resemble Word layout 
 %%  - add the formulasheet environment
 %%  - add the \pmark and \pmarks{} commands to assign partial marks in answers. These are summed up and compared to the total marks for each part.
+%%  - align table and figure captions with faculty guidelines
 %%
 %% ToDo:
 %%  - automatically pre-populate front matter with correct blurb when there are sections in the exam
@@ -29,12 +24,15 @@
 
 % Document class options
 \usepackage{ifthen}
+\newboolean{draft}
 \newboolean{supplementary}
 \newboolean{withAnswers}
 \newboolean{withAEB}
 \newboolean{withCF}
 \newboolean{withDict}
 \newboolean{withCalc}
+\DeclareOption{draft}{\setboolean{draft}{true} \PassOptionsToClass{\CurrentOption}{\baseclass}}
+\DeclareOption{final}{\setboolean{draft}{false}}
 \DeclareOption{supplementary}{\setboolean{supplementary}{true}}
 \DeclareOption{main}{\setboolean{supplementary}{false}}
 \DeclareOption{answers}{\setboolean{withAnswers}{true}}
@@ -48,7 +46,7 @@
 \DeclareOption{calculator}{\setboolean{withCalc}{true}}
 \DeclareOption{no-calculator}{\setboolean{withCalc}{false}}
 % set default options
-\ExecuteOptions{main,no-astrobooklet,no-answers,calvertfarrar,dictionary,calculator}
+\ExecuteOptions{main,final,no-astrobooklet,no-answers,calvertfarrar,dictionary,calculator}
 
 % handle passed options
 \DeclareOption*{\PassOptionsToClass{\CurrentOption}{\baseclass}}
@@ -61,16 +59,16 @@
   \let\@this\@empty
   \if@tempswa \else \PassOptionsToClass{#1}{\baseclass}\fi
 }
-\@checkoptions{10pt}{{10pt}{11pt}{12pt}}
+\@checkoptions{11pt}{{10pt}{11pt}{12pt}}
 \PassOptionsToClass{a4paper}{\baseclass}
 \ProcessOptions\relax
 
 \LoadClass{\baseclass}
 
-\usepackage{version,lastpage,fancyhdr}
+\usepackage{version,lastpage,fancyhdr,fix-cm}
+\usepackage[aux]{rerunfilecheck}
 
 % Base font Helvetica (required)
-\usepackage{fix-cm}
 \usepackage[scaled]{helvet}
 \renewcommand*\familydefault{\sfdefault}
 
@@ -78,7 +76,7 @@
 \renewcommand{\headrulewidth}{0.0pt}
 \fancypagestyle{first}{
     \fancyhf{}
-    \fancyfoot[L]{\small Version saved: \today}
+    \fancyfoot[L]{\small Saved: \today}
     \fancyfoot[C]{\small Copyright~\copyright~{\arabic{examyearplus1}}~\univname}
     \fancyfoot[R]{\small Number of pages:~\pageref{LastPage}}
 }
@@ -155,10 +153,9 @@
 \renewcommand{\labelenumii}{(\roman{enumii})}
 
 % PDF package
-\usepackage[pdfpagemode={UseNone},bookmarks=true,bookmarksopen=false,
-   bookmarksopenlevel=0,bookmarksnumbered=true,hypertexnames=false,
-   linkcolor={blue},citecolor={blue},urlcolor={red},
-   pdfstartview={FitV}, pdfpagelayout={TwoColumnLeft},colorlinks=false,hidelinks]{hyperref}
+\usepackage[pdfpagemode={UseNone}, bookmarks=true, bookmarksopen=false,
+   bookmarksopenlevel=0, bookmarksnumbered=true, hypertexnames=false,
+   pdfstartview={FitV}, pdfpagelayout={TwoColumnLeft}, hidelinks = true, unicode = true]{hyperref}
 \pdfstringdefDisableCommands{
    \let\\\space
    \let\spacefactor\space
@@ -287,34 +284,54 @@
     \renewcommand{\arrayrulewidth}{1pt}
     \newenvironment{answer}
     {
+        % in case someone adds tables or figures in the answers, make sure they are counted within the answer section and don't interfere with counting outside
+        \edef\oldtablecount{\arabic{table}}
+        \edef\oldfigurecount{\arabic{figure}}
+        \setcounter{table}{100}
+        \setcounter{figure}{100}
+        \setcounter{answermarks}{0}
         \begin{flushleft}
         {\vskip 5pt \hrule height 1pt \vskip 0pt\relax}
         \normalsize\bfseries
-        \setcounter{answermarks}{0}
     }
     {
-        {\vskip 3.4pt \hrule height 1pt \vskip -5.4pt\relax}
+        \vskip 3.4pt \hrule height 1pt \vskip -5.4pt\relax
         \end{flushleft}
+        \setcounter{table}{\oldtablecount}
+        \setcounter{figure}{\oldfigurecount}
         \ifthenelse{\value{answermarks} = 0 \OR \value{submarks} = 0 \OR \value{submarks} = \value{answermarks}}
         {}
         {
             \ClassWarningNoLine{UoSExam}{Answer marks don't add up! (Section \Alph{sec} Question \arabic{question})}
         }
     }
-    \makeatletter
-    \ifthenelse{\equal{\thepage}{1}}{
-        \AddToShipoutPicture{
-            \put(370,350){
-            \makebox(0,0){\rotatebox{55}{\textcolor[gray]{0.9}{\fontsize{5cm}{5cm}\fontseries{m}\selectfont{Answers}}}}
-            }
-        }
-    }{}
-    \makeatother
 }
 {\excludeversion{answer}}
 
-% Figures
-\usepackage[centerlast,large]{caption}
+% Add background
+\ifthenelse{\( \boolean{draft} \OR \boolean{withAnswers} \) \AND \( \value{page}=1 \)}
+{
+    \AddToShipoutPicture{
+        \put(370,350){
+            \makebox(0,0){
+                \rotatebox{55}{
+                    \textcolor[gray]{0.8}{
+                        \fontsize{5cm}{5cm}\fontseries{m}\selectfont
+                        \ifthenelse{\boolean{draft}}{Draft}{}
+                        \ifthenelse{\boolean{withAnswers}}{Answers}{}
+                    }
+                }
+            }
+        }
+    }
+}
+{}
+
+% Figures (something is strange with the font sizes, they all need to be Large to match body text)
+\usepackage{floatrow}
+\floatsetup[figure]{font=Large}
+\floatsetup[table]{style=plaintop,font=Large}
+\usepackage[centerlast,Large,bf]{caption}
 \setlength{\captionmargin}{20pt}
 \renewcommand{\thefigure}{\thequestion.\arabic{figure}}
 \renewcommand{\thetable}{\thequestion.\arabic{table}}
@@ -352,17 +369,9 @@
 \reversemarginpar
 
 % Front matter
-\newcommand*{\addresses}[1]{\def\addressnames{#1}}
 \newcommand*{\university}[1]{\def\univname{#1}}
 \newcommand*{\UNIVERSITY}[1]{\def\UNIVNAME{#1}}
-\newcommand*{\department}[1]{\def\deptname{#1}}
-\newcommand*{\DEPARTMENT}[1]{\def\DEPTNAME{#1}}
-\newcommand*{\group}[1]{\def\groupname{#1}}
-\newcommand*{\GROUP}[1]{\def\GROUPNAME{#1}}
-\newcommand*{\faculty}[1]{\def\facname{#1}}
-\newcommand*{\FACULTY}[1]{\def\FACNAME{#1}}
 \newcommand*{\subject}[1]{\def\subjectname{#1}}
-\newcommand*{\keywords}[1]{\def\keywordnames{#1}}
 \newcommand*{\semester}[1]{\setcounter{semnumber}{#1}}
 \newcommand*{\duration}[1]{\def\durationmins{#1}}
 \newcommand*{\unitcode}[1]{\def\ucode{#1}}
@@ -372,12 +381,12 @@
                          \setcounter{examyearplus1}{#1}
                          \stepcounter{examyearplus1}
 }
+\newcommand*{\authors}[1]{\def\auths{#1}}
 \newcommand*{\QtoA}[1]{\def\qtba{#1}}
 \newcommand{\NumberOfQuestions}[1]{\def\QTBA{#1}}
 \newcommand{\MarkingScheme}[1]{\def\mscheme{#1}}
 \newcommand{\instructions}[1]{\def\sinstr{#1}}
 \newcommand{\specialInstructions}[1]{\def\sinstrx{#1}}
-\newcommand*{\authors}[1]{\def\auths{#1}}
 
 % Set some defaults
 \university  {\texorpdfstring{\href{http://www.soton.ac.uk}
@@ -386,24 +395,6 @@
 \UNIVERSITY  {\texorpdfstring{\href{http://www.soton.ac.uk}
                 {UNIVERSITY OF SOUTHAMPTON}}
                 {UNIVERSITY OF SOUTHAMPTON}}
-\department  {\texorpdfstring{\href{http://www.ecs.soton.ac.uk}
-                {School of Engineering}}
-                {School of Engineering}}
-\DEPARTMENT  {\texorpdfstring{\href{http://www.ecs.soton.ac.uk}
-                {SCHOOL OF ENGINEERING}}
-                {SCHOOL OF ENGINEERING}}
-\group       {\texorpdfstring{\href{http://www.isis.ecs.soton.ac.uk}
-                {Astronautics Group}}
-                {Astronautics Group}}
-\GROUP       {\texorpdfstring{\href{http://www.isis.ecs.soton.ac.uk}
-                {ASTRONAUTICS GROUP}}
-                {ASTRONAUTICS GROUP}}
-\faculty     {\texorpdfstring{\href{http://www.engineering.soton.ac.uk}
-                {Faculty of Engineering and Physical Sciences}}
-                {Faculty of Engineering and Physical Sciences}}
-\FACULTY     {\texorpdfstring{\href{http://www.engineering.soton.ac.uk}
-                {FACULTY OF ENGINEERING AND PHYSICAL SCIENCES}}
-                {FACULTY OF ENGINEERING AND PHYSICAL SCIENCES}}
 \QtoA{\totvalue{questions}}
 \NumberOfQuestions{
 \ifthenelse{\totvalue{questions} = -1}{\ClassWarningNoLine{UoSExam}{Rerun LaTeX to obtain correct count of questions!}}{}
@@ -411,6 +402,7 @@
 
 This paper contains \textbf{\safeNUMBERstringnum{\totvalue{questions}}} \ifthenelse{\totvalue{questions} = 1}{question}{questions}.
 %\ifthenelse{\totvalue{sec} > 0}{ in \textbf{\safeNUMBERstringnum{\totvalue{sec}}} sections.}{}
+%\@for\@i:={\qtba}\do{    {\@i} questions in section.  } 				%\expandafter
 
 Answer 
 \ifthenelse{\qtba = \totvalue{questions}}
@@ -433,11 +425,8 @@ An outline marking scheme is shown in brackets to the right of each question. Th
 \calculator{Only University approved calculators are permitted.}
 
 % Assemble title page
-  \renewcommand{\maketitle}{
-    \hypersetup{pdftitle={\utit}}
-    \hypersetup{pdfsubject={}}
-    \hypersetup{pdfauthor={\auths}}
-    \hypersetup{pdfkeywords={}}
+\renewcommand{\maketitle}{
+    \hypersetup{pdftitle={\utit}, pdfauthor={\auths}}
     \Large
     \thispagestyle{first}
     \UNIVNAME \hfill \ucode W1
@@ -446,7 +435,10 @@ An outline marking scheme is shown in brackets to the right of each question. Th
     \bigskip
     \ifthenelse{\boolean{supplementary}}
     {SUPPLEMENTARY~EXAMINATION~\arabic{examyear}/\arabic{examyearplus1}}
-    {SEMESTER~\arabic{semnumber}~EXAMINATION~\arabic{examyear}/\arabic{examyearplus1}}
+    {SEMESTER~\arabic{semnumber}~EXAMINATION~\arabic{examyear}/\arabic{examyearplus1}}%
+    \ifthenelse{\boolean{withAnswers}}
+    { -- ANSWERS}
+    {}
 
     {TITLE: \MakeUppercase{\utit}}
 
