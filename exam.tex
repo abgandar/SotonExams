@@ -1,0 +1,175 @@
+%
+% General advice: to update the counts in the paper, it needs to be compiled at least twice (but you knew that)!
+%
+\documentclass[]{uosexam}
+% Options that can be provided to the class, for example:
+%\documentclass[answers]{uosexam}
+%
+% supplementary - This is a supplementary exam (changes wording in front matter as per faculty guidance)
+% main - This is a "normal" exam (default)
+% answers - Include the answers in the output
+% no-answers - Only output the exam (default)
+% astrobooklet - Astro equations booklet is provided
+% no-astrobooklet - No AStro equations booklet is provided (default)
+% calvertfarrar - Calvert Farrar engineering data book is provided (default)
+% no-calvertfarrar - Calvert Farrar is not provided
+% dictionary - Word-to-word dictionary is allowed (default)
+% no-dictionary - Don't allow dictionary
+% calculator - Allow uni-approved calculators (default)
+% no-calculator - Don't allow calculators
+
+\begin{document}
+\unitTitle{Introduction to \LaTeX}
+\authors{Alexander Wittig}
+\unitcode{SESA6666}
+\semester{2}
+\examyear{2018}        % NOTE: this has been renamed from earlier versions of the template to not clash with built-in \year commands in packages
+\duration{120} 		  % minutes
+%\QtoA{9}	                   % number of questions to answer (default: all)
+\specialInstructions{    % This will be added at the end of the instructions on the front matter page
+You may place one phone call to Donald Knuth during the exam.
+}
+
+% By default, the information in the front matter is automatically calculated.
+%
+% If your exam uses Sections AND you have complicated instructions, you need to manually
+% overwrite the blurb for the front page as the \QtoA command doesn't handle sections:
+%\NumberOfQuestions{This paper contains NINETY-NINE sections with TWO questions each.\par
+%Answer all ODD NUMBERED question in EVERY OTHER section.}
+%
+% You can also change the marking scheme text using
+% \MarkingScheme{An outline marking scheme is shown in brackets to the right of each question. This exam is marked out of \textbf{69 marks}.}
+
+\maketitle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% If you use sections, you can start a new section like this:
+%\section
+
+%  Start a question worth 20 marks.
+\begin{question}{20}
+What is the capital of Australia?
+
+\begin{answer}
+% Anything written in here is only output if the answers option is set
+Canberra
+\end{answer}
+\end{question}
+
+%%%%%%%%%%%%%%%%%%%%%
+
+\begin{question}{15}
+This question is made up of several parts:
+
+% Start a list of the parts
+\begin{parts}
+    \part[5]{      % start a new part of the question worth 5 marks
+    How many parts does this question have? Note also the information in \tref{tab:info} and \tref{tab:mytable}.
+
+    \begin{table}[htp]
+    \caption{Very important data!}
+    \begin{center}
+    \begin{tabular}{c|c}
+    1 & 2 \\
+    \hline 
+    4 & 3
+    \end{tabular}
+    \end{center}
+    \label{tab:info}
+    \end{table}
+    
+    \begin{answer}
+    $$p=3$$
+    \end{answer}
+    }
+
+    \part[5]{
+    Which part of this question is the best?
+    \begin{itemize}
+    \item Part (i)
+    \item Part (ii)
+    \item Part (iii)
+    \item Part (iv)
+    \end{itemize}
+    
+    \begin{answer}
+    Clearly it is part (ii).
+    \end{answer}
+    }
+
+    \part[5]{
+    How often do the letters \emph{e} and \emph{n} appear in this part?
+
+    \begin{answer}
+    % the \pmark and \pmarks{#} commands can be used to indicate partial marks for steps in the answer
+    e appears 6 times \pmarks{4} \\
+    n appears 4 times \pmark
+    \end{answer}
+    }
+\end{parts}
+\end{question}
+
+%%%%%%%%%%%%%%%%%%%%%
+
+\begin{question}{10}
+This is a really poorly written question. The marks don't even add up!
+
+\begin{parts}
+    \part[5]{
+    How many marks is this part of the question worth?
+
+    \begin{answer}
+    5 marks \pmarks{4}
+    % If partial marks are present in the answer but don't add up, you get a warning in the LaTeX output 
+    % and the mark for the part is shown in red (only if answers option is set)
+    \end{answer}
+    }
+
+    \part[10]{
+    What's the total number of marks for this question (see also \fref{fig:myfigure})?
+    
+    \begin{figure}[htb]
+    \begin{center}
+    Your figure could appear here!
+    \caption{Placeholder for a pretty figure.}
+    \label{fig:myfigure}
+    \end{center}
+    \end{figure}
+
+
+    \begin{answer}
+    10 marks.
+    % If the total number of marks at the end of a question does not add up to what was declared, you get
+    % a warning in the LaTeX output and the total mark is shown in red.
+    \end{answer}
+    }
+\end{parts}
+\end{question}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{formulasheet}
+A formula sheet is optional. If this environment is present, a note is automatically included in the front matter
+using (almost) the wording from the faculty guidance.
+
+If you don't want a formula sheet, just remove this environment.
+
+Formula sheets must always be the last thing in the exam. Note how the footer on each page is adjusted
+in accordance with faculty guidelines (END OF PAPER after last question, etc.)
+
+\begin{table}[htb]
+\caption{Some really cool data could be shown here}
+\begin{center}
+\begin{tabular}{|c|c|}
+But & it \\
+\hline
+is & not
+\end{tabular}
+\end{center}
+\label{tab:mytable}
+\end{table}
+
+\end{formulasheet}
+
+\end{document}
