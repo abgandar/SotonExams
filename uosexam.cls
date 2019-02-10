@@ -14,6 +14,7 @@
 %%  - add the formulasheet environment
 %%  - add the \pmark and \pmarks{} commands to assign partial marks in answers. These are summed up and compared to the total marks for each part.
 %%  - align table and figure captions with faculty guidelines
+%%  - add LuaTeX with basic vector math support
 %%
 %% ToDo:
 %%  - automatically pre-populate front matter with correct blurb when there are sections in the exam
@@ -76,79 +77,87 @@
 % a simple lua vector class to allow basic vector arithmetic
     \begin{luacode*}
 Vector = {
-    new = function (self, a)
-        o = { d = a or {0, 0, 0} }
-        setmetatable( o, self )
+    new = function (self, a)                    -- create a new Vector with given content, e.g. Vector:new({1,2,3})
+        o = { }
+        if a then
+            for i, x in ipairs(a) do o[i] = x end
+        end
+        setmetatable(o, self)
         self.__index = self
         return o
     end,
-    __unm = function (self)
-        d = {}
-        for i in pairs(self.d) do d[i] = -self.d[i] end
-        return Vector:new(d)
+    __unm = function (self)                    -- negate a Vector
+        d = Vector:new( )
+        for i, x in ipairs(self) do d[i] = -x end
+        return d
     end,
-    __add = function (self, v)
-        d = {}
+    __add = function (self, v)                 -- add two vectors, or a vector and a number (componentwise)
+        d = Vector:new( )
         if type(self) == "number" then
-            for i in pairs(v.d) do d[i] = v.d[i] + self end
+            for i, x in ipairs(v) do d[i] = x + self end
         elseif type(v) == "number" then
-            for i in pairs(self.d) do d[i] = self.d[i] + v end
+            for i, x in ipairs(self) do d[i] = x + v end
         else
-            for i in pairs(self.d) do d[i] = self.d[i] + v.d[i] end
+            for i, x in ipairs(self) do d[i] = x + v[i] end
         end
-        return Vector:new(d)
+        return d
     end,
-    __sub = function (self, v)
-        d = {}
+    __sub = function (self, v)                 -- subtract two vectors, or a vector and a number (componentwise)
+        d = Vector:new()
         if type(self) == "number" then
-            for i in pairs(v.d) do d[i] = self - v.d[i] end
+            for i, x in ipairs(v) do d[i] = self - x end
         elseif type(v) == "number" then
-            for i in pairs(self.d) do d[i] = self.d[i] - v end
+            for i, x in ipairs(self) do d[i] = x - v end
         else
-            for i in pairs(self.d) do d[i] = self.d[i] - v.d[i] end
+            for i, x in ipairs(self) do d[i] = x - v[i] end
         end
-        return Vector:new(d)
+        return d
     end,
-    __mul = function (self, v)
-        d = {}
+    __mul = function (self, v)                 -- multiply two vectors (scalar dot product), or a vector and a number (componentwise)
         if type(self) == "number" then
-            for i in pairs(v.d) do d[i] = v.d[i]*self end
+            d = Vector:new()
+            for i, x in ipairs(v) do d[i] = self*x end
         elseif type(v) == "number" then
-            for i in pairs(self.d) do d[i] = self.d[i]*v end
+            d = Vector:new()
+            for i, x in ipairs(self) do d[i] = x*v end
         else
             d = 0
-            for i in pairs(self.d) do d = d + self.d[i]*self.d[i] end
-            return d
+            for i, x in ipairs(self) do d = d + x*v[i] end
         end
-        return Vector:new(d)
+        return d
     end,
-    __div = function (self, v)
-        d = {}
-        for i in pairs(self.d) do d[i] = self.d[i]/v end
-        return Vector:new(d)
+    __div = function (self, v)                 -- divide a vector and a number (componentwise)
+        d = Vector:new()
+        for i, x in ipairs(self) do d[i] = x/v end
+        return d
     end,
-    cross = function (self, v)
-        d = {}
-        d[1] = self.d[2]*v.d[3]-self.d[3]*v.d[2]
-        d[2] = self.d[3]*v.d[1]-self.d[1]*v.d[3]
-        d[3] = self.d[1]*v.d[2]-self.d[2]*v.d[1]
-        return Vector:new(d)
+    cross = function (self, v)                 -- cross product between two vectors of length 3
+        d = Vector:new()
+        d[1] = self[2]*v[3]-self[3]*v[2]
+        d[2] = self[3]*v[1]-self[1]*v[3]
+        d[3] = self[1]*v[2]-self[2]*v[1]
+        return d
     end,
-    norm = function (self)
+    norm = function (self)                     -- length of a vector
         return math.sqrt(self*self)
     end,
-    __tostring = function (self)
+    angle = function (self, v)                 -- angle between two vectors
+        return math.acos((self*v)/(self:norm()*v:norm()))
+    end,
+    __tostring = function (self)              -- vector as LaTeX column vector
         res = "\\begin{pmatrix}"
-        for i in pairs(self.d) do 
+        for i,x  in ipairs(self) do 
             if i > 1 then res = res.."\\\\" end
-            res = res..string.format("\\num{%.4g}", self.d[i])
+            res = res..string.format("\\num{%.4g}", x)
         end
         return res.."\\end{pmatrix}"
     end,
-    print = function (self)
-        tex.sprint(self:__tostring())
+    print = function (self)                       -- output vector to LaTeX document
+        tex.sprint("\\ensuremath{"..self:__tostring().."}")
     end
 }
+
+-- ToDo: Add a simple matrix class for the vector class following the same idea
     \end{luacode*}
 \else
     \usepackage[scaled]{helvet}
