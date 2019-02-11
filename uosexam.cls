@@ -67,7 +67,7 @@
 \LoadClass{\baseclass}
 
 \usepackage[aux]{rerunfilecheck}
-\usepackage{version,lastpage,fancyhdr,fix-cm,ifluatex}
+\usepackage{version,lastpage,fancyhdr,fix-cm,ifluatex,framed}
 
 \ifluatex
     \usepackage{fontspec}
@@ -479,8 +479,11 @@ Vector = {
 \newcommand*{\QtoA}[1]{\def\qtba{#1}}
 \newcommand{\NumberOfQuestions}[1]{\def\QTBA{#1}}
 \newcommand{\MarkingScheme}[1]{\def\mscheme{#1}}
+\newcommand{\provided}[1]{\def\sprov{#1}}
+\newcommand{\specialProvided}[1]{\def\sprovx{#1}}
 \newcommand{\instructions}[1]{\def\sinstr{#1}}
 \newcommand{\specialInstructions}[1]{\def\sinstrx{#1}}
+\newcommand{\isprovided}[1]{\framebox[\textwidth]{\parbox{\textwidth}{\centering {#1}}}\par}
 
 % Set some defaults
 \university  {\texorpdfstring{\href{http://www.soton.ac.uk}
@@ -493,11 +496,11 @@ Vector = {
 \NumberOfQuestions{
 \ifthenelse{\totvalue{questions} = -1}{\ClassWarningNoLine{UoSExam}{Rerun LaTeX to obtain correct count of questions!}}{}
 \ifthenelse{\qtba > \totvalue{questions}}{\ClassWarningNoLine{UoSExam}{Questions to answer larger than number of questions in exam!}}{}
-
+\par
 This paper contains \textbf{\safeNUMBERstringnum{\totvalue{questions}}} \ifthenelse{\totvalue{questions} = 1}{question}{questions}.
 %\ifthenelse{\totvalue{sec} > 0}{ in \textbf{\safeNUMBERstringnum{\totvalue{sec}}} sections.}{}
 %\@for\@i:={\qtba}\do{    {\@i} questions in section.  } 				%\expandafter
-
+\par
 Answer 
 \ifthenelse{\qtba = \totvalue{questions}}
     {\textbf{ALL} questions.}
@@ -505,17 +508,18 @@ Answer
 }
 \MarkingScheme{
 \ifthenelse{\totvalue{totalmarks} = -1}{\ClassWarningNoLine{UoSExam}{Rerun LaTeX to obtain correct count of total marks!}}{}
-An outline marking scheme is shown in brackets to the right of each question. This exam is marked out of \textbf{\total{totalmarks} marks}.}
-\instructions {
-    \ifthenelse{\boolean{withCF}}{\framebox[\textwidth]{An Engineering Data Book by Calvert and Farrar is provided}}{}
-
-    \ifthenelse{\boolean{withAEB}}{\framebox[\textwidth]{A University of Southampton astronautics equation booklet is provided}}{}
-
-    \ifthenelse{\totvalue{fsheets} > 0}{Note that a formula sheet with equations and/or numerical constants is provided at the end of this paper.}{}
-    
-    \ifthenelse{\boolean{withDict}}{A foreign language direct `Word to Word' translation dictionary (paper version ONLY) is permitted, provided it contains no notes, additions or annotations.}{}
+An outline marking scheme is shown in brackets to the right of each question. This exam is marked out of \textbf{\total{totalmarks} marks}.
 }
-\specialInstructions {}
+\provided{
+    \ifthenelse{\boolean{withCF}}{\isprovided{An Engineering Data Book by Calvert and Farrar is provided}}{}
+    \ifthenelse{\boolean{withAEB}}{\isprovided{A University of Southampton astronautics equation booklet is provided}}{}
+}
+\instructions{
+    \ifthenelse{\totvalue{fsheets} > 0}{Note that a formula sheet with equations and/or numerical constants is provided at the end of this paper.\par}{}
+    \ifthenelse{\boolean{withDict}}{A foreign language direct `Word to Word' translation dictionary (paper version ONLY) is permitted, provided it contains no notes, additions or annotations.\par}{}
+}
+\specialProvided{}
+\specialInstructions{}
 \calculator{Only University approved calculators are permitted.}
 
 % Assemble title page
@@ -542,10 +546,11 @@ An outline marking scheme is shown in brackets to the right of each question. Th
     \rule{\textwidth}{1pt}
         {\QTBA\par}
         {\mscheme\par}
-        \vspace{1cm}
+        \vspace{1cm plus 0cm minus 0.4cm}
+        {\sprov\par\sprovx\par}
         {\sinstr\par\sinstrx\par}
         \ifthenelse{\boolean{withCalc}}{
-            \vspace{1cm}
+            \vspace{1cm plus 0cm minus 0.4cm}
             {\calcoption\par}
         }{}
     \vfill
