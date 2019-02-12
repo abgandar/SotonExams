@@ -103,7 +103,7 @@ This question is made up of several parts:
 
 % If you're using LuaTeX, you can calculate the answer to your questions conveniently in Lua
 \ifluatex
-    % A very simple vector class is provided as demonstrated in this piece of code.
+    % A simple vector and matrix class are provided as demonstrated in this piece of code.
     \begin{luacode*}
         mu = 1.327e11
         au = 1.496e8
@@ -112,10 +112,18 @@ This question is made up of several parts:
         
         h = r:cross(v)
         e = v:cross(h)/mu - r/r:norm()
+        
+        a = math.rad(70)
+        R = Matrix:new({{  math.cos(a), math.sin(a), 0 },
+                                  { -math.sin(a), math.cos(a), 0 },
+                                  {  0,                   0,                0 }})
+        R[3][3] = 1     -- fix the bottom right entry
+        e_rot = R*e
     \end{luacode*}
 
     Also, for $\mu=\directlua{tex.print(mu)}$ the eccentricity vector is:
-    $$\vec{e} = \frac{\vec{v}\times\vec{h}}{\mu}-\frac{\vec{r}}{r} = \directlua{e:print()}$$
+    $$\vec{e} = \frac{\vec{v}\times\vec{h}}{\mu}-\frac{\vec{r}}{r} = \directlua{e:print(6)}$$
+    After applying rotation matrix $$R=\directlua{R:print()}$$ it becomes $$\vec{e}_{rot}=R\cdot \vec{e}=\directlua{e_rot:print()}.$$
 \fi
 % End of LuaTeX code
     \end{answer}
