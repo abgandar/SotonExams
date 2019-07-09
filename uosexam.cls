@@ -238,7 +238,7 @@
 
 % Part of question
 \renewcommand{\part}[1][0]{
-    \ifthenelse{\value{submarks} > 0}{\marks{\thesubmarks}\setcounter{submarks}{0}}{}
+    \ifthenelse{\value{submarks} > 0}{\marks{\thesubmarks}\setcounter{submarks}{0}\pagebreak[1]}{}		%  includes slight hint to break page before starting a new part
     \addtocounter{submarks}{#1}
     \addtocounter{marks}{#1}
     \item
@@ -286,6 +286,10 @@
     \addtocounter{totalmarks}{\totalmark}
     \clearpage
 }
+
+% Redefined \pagebreak command to print marks of open parts if needed before breaking
+\def\aroundto#1#2#3{\toks0={#2}\toks1=\expandafter{#1}\toks2={#3}\edef#1{\the\toks0 \the\toks1 \the\toks2}}
+\aroundto\pagebreak{\ifthenelse{\value{submarks} > 0}{\marks{\thesubmarks}\setcounter{submarks}{0}}{}}{}
 
 % Answer environment
 \ifthenelse{\boolean{withAnswers}}{
@@ -393,6 +397,7 @@
 \newcommand*{\QtoA}[1]{\def\qtba{#1}}
 \newcommand{\NumberOfQuestions}[1]{\def\QTBA{#1}}
 \newcommand{\MarkingScheme}[1]{\def\mscheme{#1}}
+\newcommand{\specialMarkingScheme}[1]{\def\smscheme{#1}}
 \newcommand{\provided}[1]{\def\sprov{#1}}
 \newcommand{\specialProvided}[1]{\def\sprovx{#1}}
 \newcommand{\instructions}[1]{\def\sinstr{#1}}
@@ -432,6 +437,7 @@ An outline marking scheme is shown in brackets to the right of each question. Th
     \ifthenelse{\totvalue{fsheets} > 0}{Note that a formula sheet with equations and/or numerical constants is provided at the end of this paper.\par}{}
     \ifthenelse{\boolean{withDict}}{A foreign language direct `Word to Word' translation dictionary (paper version ONLY) is permitted, provided it contains no notes, additions or annotations.\par}{}
 }
+\specialMarkingScheme{}
 \specialProvided{}
 \specialInstructions{}
 \calculator{Only University approved calculators are permitted.}
@@ -459,7 +465,7 @@ An outline marking scheme is shown in brackets to the right of each question. Th
     \\ \bigskip
     \rule{\textwidth}{1pt}
         {\QTBA\par}
-        {\mscheme\par}
+        {\mscheme\par\smscheme\par}
         \vspace{1cm plus 0cm minus 0.4cm}
         {\sprov\par\sprovx\par}
         {\sinstr\par\sinstrx\par}
