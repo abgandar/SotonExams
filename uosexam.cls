@@ -209,25 +209,31 @@
 \newcommand{\pmarks}[1]{\addtocounter{answermarks}{#1} {\color{red} \lbrack+#1\rbrack}}
 \newcommand{\pmark}{\pmarks{1}}
 
-% Part marks
+% Print either "mark" or "marks" depending on count
+\newcommand{\markword}[1]
+{%
+    \ifthenelse{#1 = 1}{mark}{marks}%
+}
+
+% Print part marks
 \renewcommand{\marks}[1]
 {
     \hspace*{\fill}
     \nolinebreak[1]
     \hspace*{\fill}
     \ifthenelse{\value{answermarks} = 0 \OR \value{submarks} = 0 \OR \value{submarks} = \value{answermarks}}
-    {\textbf{{[#1~marks]}}}
-    {{\color{red}\textbf{{[#1~marks]}}}}
+    {\textbf{{[#1~\markword{#1}]}}}
+    {{\color{red}\textbf{{[#1~\markword{#1}]}}}}
     \par
 }
 
-% Total question marks
+% Print total question marks
 \newcommand{\totalmarks}[1]
 {
     \hspace*{\fill}
     \nolinebreak[1]
     \hspace*{\fill}
-    \textbf{{[Total: #1~marks]}}\par
+    \textbf{{[Total: #1~\markword{#1}]}}\par
 }
 
 % Section
@@ -236,12 +242,26 @@
      \begin{center}\textbf{\LARGE Section \Alph{sec}}\end{center}
 }
 
-% Part of question
-\renewcommand{\part}[1][0]{
+% Part of question (* variant doesn't count marks towards question total)
+%\makeatletter
+\renewcommand{\part}{%
+             \@ifstar
+                  \partStar%
+                  \partNormal%
+%\makeatother
+}
+
+% Special part of question (marks not counted, e.g. bonus question)
+\newcommand{\partStar}[1][0]{
     \ifthenelse{\value{submarks} > 0}{\marks{\thesubmarks}\setcounter{submarks}{0}\pagebreak[1]}{}		%  includes slight hint to break page before starting a new part
     \addtocounter{submarks}{#1}
-    \addtocounter{marks}{#1}
     \item
+}
+
+% Normal part of question (marks count towards question total)
+\newcommand{\partNormal}[1][0]{
+    \addtocounter{marks}{#1}
+    \partStar[#1]
 }
 
 % Parts environment
@@ -249,8 +269,9 @@
 \begin{enumerate}}
 {\ifthenelse{\value{submarks} > 0}{\marks{\thesubmarks}\setcounter{submarks}{0}}{}\end{enumerate}}
 
-% Question environment
-\newenvironment{question}[1]{
+% Special question environment without counting marks (e.g. bonus questions)
+% Note: there's no need to (but also no harm in) using \part* within a bonus question.
+\newenvironment{question*}[1]{
     \stepcounter{question}
     \stepcounter{questions}
     \newcommand{\totalmark}{#1}
@@ -283,8 +304,16 @@
             {\color{red} \totalmarks{\totalmark}}
         }
     }
-    \addtocounter{totalmarks}{\totalmark}
     \clearpage
+}
+
+% Normal question environment (marks count towards exam total)
+\newenvironment{question}[1]{
+    \begin{question*}{#1}
+}
+{
+    \addtocounter{totalmarks}{\totalmark}
+    \end{question*}
 }
 
 % Redefined \pagebreak command to print marks of open parts if needed before breaking
