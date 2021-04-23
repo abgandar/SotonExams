@@ -32,6 +32,7 @@
 \newboolean{withCF}
 \newboolean{withDict}
 \newboolean{withCalc}
+\newboolean{withHours}
 \DeclareOption{draft}{\setboolean{draft}{true} \PassOptionsToClass{\CurrentOption}{\baseclass}}
 \DeclareOption{final}{\setboolean{draft}{false}}
 \DeclareOption{supplementary}{\setboolean{supplementary}{true}}
@@ -46,8 +47,10 @@
 \DeclareOption{no-dictionary}{\setboolean{withDict}{false}}
 \DeclareOption{calculator}{\setboolean{withCalc}{true}}
 \DeclareOption{no-calculator}{\setboolean{withCalc}{false}}
+\DeclareOption{hours}{\setboolean{withHours}{true}}
+\DeclareOption{no-hours}{\setboolean{withHours}{false}}
 % set default options
-\ExecuteOptions{main,final,no-astrobooklet,no-answers,calvertfarrar,dictionary,calculator}
+\ExecuteOptions{main,final,no-astrobooklet,no-answers,calvertfarrar,dictionary,calculator,no-hours}
 
 % handle passed options
 \DeclareOption*{\PassOptionsToClass{\CurrentOption}{\baseclass}}
@@ -490,7 +493,7 @@ An outline marking scheme is shown in brackets to the right of each question. Th
     {TITLE: \MakeUppercase{\utit}}
 
     \bigskip
-    {DURATION:~\durationmins~mins}
+    \ifthenelse{\boolean{withHours}}{DURATION:~\durationmins~h}{DURATION:~\durationmins~mins}
     \\ \bigskip
     \rule{\textwidth}{1pt}
         {\QTBA\par}
