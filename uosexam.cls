@@ -164,7 +164,7 @@
 \renewcommand{\labelenumii}{(\roman{enumii})}
 
 % PDF package
-\usepackage[pdfpagemode={UseNone}, bookmarks=true, bookmarksopen=false,
+\usepackage[pdfpagemode={UseNone}, bookmarks=true, bookmarksopen=false, pdflang={en-GB},
    bookmarksopenlevel=0, bookmarksnumbered=true, hypertexnames=false,
    pdfstartview={FitV}, pdfpagelayout={TwoColumnLeft}, hidelinks, unicode = true]{hyperref}
 \pdfstringdefDisableCommands{

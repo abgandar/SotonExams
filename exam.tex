@@ -53,6 +53,18 @@ You may place one phone call to Donald Knuth during the exam.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\begin{luacode*}
+	require('Lua')
+	muS = 1.327e11			-- km^3/s^2
+	mu = 3.986e5			-- km^3/s^2
+	RE = 6371				-- km
+	au = 1.496e9			-- km
+	G = 6.67430e-11			-- m^3/kg s^2
+\end{luacode*}
+\newcommand{\lp}[1]{\luadirect{print(#1)}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 % If you use sections, you can start a new section like this:
 %\section
 
@@ -110,7 +122,6 @@ This question is made up of several parts:
 \ifluatex
     % A simple vector and matrix class are provided as demonstrated in this piece of code.
     \begin{luacode*}
-        require('Lua/linalg.lua')
         mu = 1.327e11
         au = 1.496e8
         r = Vector:new( {1.3369, 0.66845, 0} )*au
